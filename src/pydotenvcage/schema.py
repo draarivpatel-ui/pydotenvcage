@@ -12,7 +12,14 @@ from .errors import ERROR_CODES, DotenvCageError, Finding, make_finding
 KEY_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 INTEGER_PATTERN = re.compile(r"^-?(?:0|[1-9][0-9]*)$")
 NUMBER_PATTERN = re.compile(r"^-?(?:(?:0|[1-9][0-9]*)(?:\.[0-9]+)?)(?:[eE][+-]?[0-9]+)?$")
-TYPES = frozenset(("string", "integer", "number", "boolean", "enum", "url", "json", "secret"))
+TYPES = frozenset(("string", "integer", "number", "boolean", "enum", "url", "json", "secret", "semver"))
+
+SEMVER_PATTERN = re.compile(
+    r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
+    r"(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?"
+    r"(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?"
+)
+SEMVER_MAX_LENGTH = 256
 
 
 def _schema_error(message: str) -> DotenvCageError:
@@ -103,6 +110,18 @@ def _check_value(value: str, rule: Mapping[str, object]) -> Optional[str]:
             return "is below the minimum"
         if "max" in rule and number > rule["max"]:
             return "is above the maximum"
+        return None
+    if kind == "semver":
+        if len(value) > SEMVER_MAX_LENGTH:
+            return "semantic version is too long (maximum 256 characters)"
+        match = SEMVER_PATTERN.fullmatch(value)
+        if match is None:
+            return "is not a strict semantic version"
+        if match.group(4) and any(
+            part.isdigit() and len(part) > 1 and part.startswith("0")
+            for part in match.group(4).split(".")
+        ):
+            return "semantic version prerelease numbers must not have leading zeros"
         return None
     if kind == "boolean":
         return None if value in ("true", "false") else "is not exactly true or false"
