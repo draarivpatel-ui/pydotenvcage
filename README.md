@@ -126,3 +126,19 @@ See `examples/basic_load.py`, `examples/audit_and_redact.py`, and `examples/sche
 ## License
 
 MIT
+
+
+### Bounded semantic-version schema values
+
+Use `{"keys": {"RELEASE": {"type": "semver"}}}` with `validate_schema`,
+`safe_load(..., schema=...)`, or a JSON schema file passed to
+`pydotenvcage validate config.env --schema schema.json`.
+
+The validator accepts `major.minor.patch`, optional `-prerelease` and optional
+`+build.metadata`, with a maximum of 256 ASCII characters checked before the
+regular expression. Core numbers and numeric prerelease identifiers cannot have
+leading zeros; build identifiers may (for example `1.2.3+001`). Prefix `v`,
+whitespace, empty identifiers and incomplete versions are rejected. Values stay
+strings: this validates syntax, not version precedence or dependency ranges.
+As with other schema types, explicit `allowEmpty: true` permits empty values.
+Validation failures happen before `safe_load` writes any target environment keys.
