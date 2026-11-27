@@ -10,7 +10,7 @@ pydotenvcage is a security boundary for untrusted or semi-trusted dotenv files. 
 
 ## Reporting
 
-Do not open a public issue with a proof of concept that contains live secret material. Redact values first with `pydotenvcage redact` or `redact_dotenv`. Report repository-security issues through the repository security contact listed on the project page.
+Do not open a public issue with a proof of concept that contains live secret material. Redact values first with `pydotenvcage redact` or `redact_dotenv`. Report vulnerabilities privately through the GitHub Security Advisories form at <https://github.com/draarivpatel-ui/pydotenvcage/security/advisories/new>. Coordinated disclosure is preferred after a fix is available.
 
 ## Threat model
 
